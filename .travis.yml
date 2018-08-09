@@ -1,0 +1,23 @@
+language: java
+jdk: oraclejdk8
+
+# Cache gradle dependencies (should be faster to download them from cache)
+cache:
+  directories:
+  - $HOME/.gradle/wrapper
+  - $HOME/.gradle/caches/modules-2/files-2.1
+
+# Setup environment
+before_install:
+- chmod +x gradlew
+# Deployment to GitHub-releases
+before_deploy:
+  # Generate and zip deployment files for the HTML project
+- ./gradlew html:dist
+deploy:
+  provider: pages
+  skip-cleanup: true
+  github-token: $GITHUB_TOKEN  # Set in the settings page of your repository, as a secure variable
+  keep-history: true
+  on:
+    branch: master
