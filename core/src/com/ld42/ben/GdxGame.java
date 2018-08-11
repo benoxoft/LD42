@@ -14,6 +14,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObjects;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
+import com.badlogic.gdx.maps.objects.TextureMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
@@ -29,7 +30,7 @@ public class GdxGame extends ApplicationAdapter implements InputProcessor {
     // Map
     private TiledMap tiledMap;
 	private OrthographicCamera camera;
-	private TiledMapRenderer tiledMapRenderer;
+	private OrthogonalTiledMapRenderer tiledMapRenderer;
     private MapLayer collisionObjectLayer;
 
     // Player
@@ -156,7 +157,8 @@ public class GdxGame extends ApplicationAdapter implements InputProcessor {
 
 		tiledMap = new TmxMapLoader().load("50_50.tmx");
 		tiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap);
-        collisionObjectLayer = tiledMap.getLayers().get(tiledMap.getLayers().getIndex("objects"));
+
+        collisionObjectLayer = tiledMap.getLayers().get(tiledMap.getLayers().getIndex("collision"));
 
 		Gdx.input.setInputProcessor(this);
 
@@ -176,8 +178,13 @@ public class GdxGame extends ApplicationAdapter implements InputProcessor {
 
 		batch.begin();
         batch.draw(playerCurrentFrame, camera.viewportWidth / 2f, camera.viewportHeight / 2f, 48, 48);
-		batch.end();
-	}
+        batch.end();
+
+        tiledMapRenderer.getBatch().begin();
+        tiledMapRenderer.renderTileLayer((TiledMapTileLayer)tiledMap.getLayers().get(tiledMap.getLayers().getIndex("OverWalls")));
+        tiledMapRenderer.getBatch().end();
+
+    }
 
 	@Override
 	public boolean keyDown(int keycode) {
@@ -203,10 +210,6 @@ public class GdxGame extends ApplicationAdapter implements InputProcessor {
 			moveUp = false;
 		if(keycode == Input.Keys.S)
 			moveDown = false;
-		if(keycode == Input.Keys.NUM_1)
-			tiledMap.getLayers().get(0).setVisible(!tiledMap.getLayers().get(0).isVisible());
-		if(keycode == Input.Keys.NUM_2)
-			tiledMap.getLayers().get(1).setVisible(!tiledMap.getLayers().get(1).isVisible());
 		return false;
 	}
 
