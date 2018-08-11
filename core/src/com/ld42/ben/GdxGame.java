@@ -11,30 +11,37 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.maps.MapLayer;
+import com.badlogic.gdx.maps.MapObjects;
+import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.math.Intersector;
+import com.badlogic.gdx.math.Rectangle;
 
 public class GdxGame extends ApplicationAdapter implements InputProcessor {
 
     private SpriteBatch batch;
-    private TextureAtlas textureAtlas;
-    private Animation animation;
+
+    // Map
     private TiledMap tiledMap;
 	private OrthographicCamera camera;
 	private TiledMapRenderer tiledMapRenderer;
-    private Texture walkSheet;
+    private MapLayer collisionObjectLayer;
 
+    // Player
+    private Texture walkSheet;
     private Animation<TextureRegion> walkAnimationLeft;
     private Animation<TextureRegion> walkAnimationRight;
     private Animation<TextureRegion> walkAnimationDown;
     private Animation<TextureRegion> walkAnimationUp;
 
     private float playerMoveTime;
-    private float playerPositionX;
-    private float playerPositionY;
     private TextureRegion playerCurrentFrame;
+    private Rectangle playerRectangle;
 
 	private boolean moveUp = false;
 	private boolean moveDown = false;
@@ -46,22 +53,58 @@ public class GdxGame extends ApplicationAdapter implements InputProcessor {
 	private void move() {
         playerMoveTime += Gdx.graphics.getDeltaTime(); // Accumulate elapsed animation time
 
+        float moveX = 0;
+        float moveY = 0;
+
         if(moveLeft) {
-            camera.translate(-1,0);
+            moveX = -1;
             playerCurrentFrame = walkAnimationLeft.getKeyFrame(playerMoveTime, true);
         }
         if(moveRight) {
-            camera.translate(1,0);
+            moveX = 1;
             playerCurrentFrame = walkAnimationRight.getKeyFrame(playerMoveTime, true);
         }
         if(moveUp) {
-            camera.translate(0,1);
+            moveY = 1;
             playerCurrentFrame = walkAnimationUp.getKeyFrame(playerMoveTime, true);
         }
         if(moveDown) {
-            camera.translate(0,-1);
+            moveY = -1;
             playerCurrentFrame = walkAnimationDown.getKeyFrame(playerMoveTime, true);
         }
+
+        playerRectangle.x = camera.position.x + 4;
+        playerRectangle.y = camera.position.y;
+
+        playerRectangle.x += moveX;
+        boolean collide = false;
+        for (RectangleMapObject rectangleObject : collisionObjectLayer.getObjects().getByType(RectangleMapObject.class)) {
+            Rectangle rectangle = rectangleObject.getRectangle();
+            if (Intersector.overlaps(rectangle, playerRectangle)) {
+                collide = true;
+                break;
+            }
+        }
+        if(!collide) {
+            camera.translate(moveX, 0);
+        }
+        playerRectangle.x -= moveX;
+
+
+        playerRectangle.y += moveY;
+        collide = false;
+        for (RectangleMapObject rectangleObject : collisionObjectLayer.getObjects().getByType(RectangleMapObject.class)) {
+            Rectangle rectangle = rectangleObject.getRectangle();
+            if (Intersector.overlaps(rectangle, playerRectangle)) {
+                collide = true;
+                break;
+            }
+        }
+        playerRectangle.y -= moveY;
+        if(!collide) {
+            camera.translate(0, moveY);
+        }
+
     }
 
 	@Override
@@ -104,16 +147,16 @@ public class GdxGame extends ApplicationAdapter implements InputProcessor {
 
 		camera = new OrthographicCamera();
 		camera.setToOrtho(false, w, h);
-		camera.position.set(camera.viewportWidth / 2f, camera.viewportHeight / 2f, 0);
+		camera.position.set(45, camera.viewportHeight / 2f + 44, 0);
 		camera.zoom = 0.25f;
 		camera.update();
 
         playerCurrentFrame = walkAnimationDown.getKeyFrame(playerMoveTime, true);
-        playerPositionX = w / 2f;
-        playerPositionY = h / 2f;
+        playerRectangle = new Rectangle(-100, -100, 4, 4);
 
 		tiledMap = new TmxMapLoader().load("50_50.tmx");
 		tiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap);
+        collisionObjectLayer = tiledMap.getLayers().get(tiledMap.getLayers().getIndex("objects"));
 
 		Gdx.input.setInputProcessor(this);
 
@@ -125,13 +168,14 @@ public class GdxGame extends ApplicationAdapter implements InputProcessor {
 		Gdx.gl.glClearColor(1, 0, 0, 1);
 		Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        move();
 		camera.update();
 		tiledMapRenderer.setView(camera);
 		tiledMapRenderer.render();
 
+        move();
+
 		batch.begin();
-        batch.draw(playerCurrentFrame, playerPositionX, playerPositionY, 48, 48);
+        batch.draw(playerCurrentFrame, camera.viewportWidth / 2f, camera.viewportHeight / 2f, 48, 48);
 		batch.end();
 	}
 
