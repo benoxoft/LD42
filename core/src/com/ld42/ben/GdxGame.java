@@ -30,7 +30,6 @@ public class GdxGame extends ApplicationAdapter implements InputProcessor {
 	private OrthogonalTiledMapRenderer tiledMapRenderer;
     private MapLayer collisionObjectLayer;
     private MapLayer doorsObjectLayer;
-    private MapLayer closedDoorsLayer;
 
     // Player
     private Texture walkSheet;
@@ -48,6 +47,18 @@ public class GdxGame extends ApplicationAdapter implements InputProcessor {
 	private boolean moveDown = false;
 	private boolean moveLeft = false;
 	private boolean moveRight = false;
+
+	// Zombies
+    private Texture zombieWalkSheet;
+    private Animation<TextureRegion> zombieWalkAnimationLeft;
+    private Animation<TextureRegion> zombieWalkAnimationRight;
+    private Animation<TextureRegion> zombieWalkAnimationDown;
+    private Animation<TextureRegion> zombieWalkAnimationUp;
+
+    private float zombieMoveTime;
+    private TextureRegion zombieCurrentFrame;
+    private Rectangle zombieRectangle;
+    private Rectangle zombieDoorOpenerRectangle;
 
     private static final int FRAME_COLS = 4, FRAME_ROWS = 4;
 
@@ -169,7 +180,7 @@ public class GdxGame extends ApplicationAdapter implements InputProcessor {
 
 		camera = new OrthographicCamera();
 		camera.setToOrtho(false, w, h);
-		camera.position.set(45, camera.viewportHeight / 2f + 44, 0);
+		camera.position.set(45, 524, 0);
 		camera.zoom = 0.25f;
 		camera.update();
 
@@ -190,7 +201,7 @@ public class GdxGame extends ApplicationAdapter implements InputProcessor {
 
 	@Override
 	public void render () {
-		Gdx.gl.glClearColor(1, 0, 0, 1);
+		Gdx.gl.glClearColor(0.3f, 0, 0, 0);
 		Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		camera.update();
