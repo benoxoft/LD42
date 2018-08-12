@@ -9,14 +9,11 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.InputProcessor;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.maps.Map;
 import com.badlogic.gdx.maps.MapLayer;
-import com.badlogic.gdx.maps.MapObjects;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
-import com.badlogic.gdx.maps.objects.TextureMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
-import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
@@ -32,6 +29,8 @@ public class GdxGame extends ApplicationAdapter implements InputProcessor {
 	private OrthographicCamera camera;
 	private OrthogonalTiledMapRenderer tiledMapRenderer;
     private MapLayer collisionObjectLayer;
+    private MapLayer doorsObjectLayer;
+    private MapLayer closedDoorsLayer;
 
     // Player
     private Texture walkSheet;
@@ -43,6 +42,7 @@ public class GdxGame extends ApplicationAdapter implements InputProcessor {
     private float playerMoveTime;
     private TextureRegion playerCurrentFrame;
     private Rectangle playerRectangle;
+    private Rectangle playerDoorOpenerRectangle;
 
 	private boolean moveUp = false;
 	private boolean moveDown = false;
@@ -76,6 +76,8 @@ public class GdxGame extends ApplicationAdapter implements InputProcessor {
 
         playerRectangle.x = camera.position.x + 4;
         playerRectangle.y = camera.position.y;
+        playerDoorOpenerRectangle.x = playerRectangle.x + 4;
+        playerDoorOpenerRectangle.y = playerRectangle.y - 6;
 
         playerRectangle.x += moveX;
         boolean collide = false;
@@ -86,6 +88,16 @@ public class GdxGame extends ApplicationAdapter implements InputProcessor {
                 break;
             }
         }
+        for (RectangleMapObject rectangleObject : doorsObjectLayer.getObjects().getByType(RectangleMapObject.class)) {
+            Rectangle rectangle = rectangleObject.getRectangle();
+            if((Boolean) rectangleObject.getProperties().get("closed")) {
+                if (Intersector.overlaps(rectangle, playerRectangle)) {
+                    collide = true;
+                    break;
+                }
+            }
+        }
+
         if(!collide) {
             camera.translate(moveX, 0);
         }
@@ -99,6 +111,15 @@ public class GdxGame extends ApplicationAdapter implements InputProcessor {
             if (Intersector.overlaps(rectangle, playerRectangle)) {
                 collide = true;
                 break;
+            }
+        }
+        for (RectangleMapObject rectangleObject : doorsObjectLayer.getObjects().getByType(RectangleMapObject.class)) {
+            Rectangle rectangle = rectangleObject.getRectangle();
+            if((Boolean) rectangleObject.getProperties().get("closed")) {
+                if (Intersector.overlaps(rectangle, playerRectangle)) {
+                    collide = true;
+                    break;
+                }
             }
         }
         playerRectangle.y -= moveY;
@@ -154,11 +175,13 @@ public class GdxGame extends ApplicationAdapter implements InputProcessor {
 
         playerCurrentFrame = walkAnimationDown.getKeyFrame(playerMoveTime, true);
         playerRectangle = new Rectangle(-100, -100, 4, 4);
+        playerDoorOpenerRectangle = new Rectangle(-100, -100, 16, 20);
 
 		tiledMap = new TmxMapLoader().load("50_50.tmx");
 		tiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap);
 
-        collisionObjectLayer = tiledMap.getLayers().get(tiledMap.getLayers().getIndex("collision"));
+        collisionObjectLayer = tiledMap.getLayers().get("collision");
+        doorsObjectLayer = tiledMap.getLayers().get("doors");
 
 		Gdx.input.setInputProcessor(this);
 
@@ -196,7 +219,6 @@ public class GdxGame extends ApplicationAdapter implements InputProcessor {
             moveUp = true;
         if(keycode == Input.Keys.S)
             moveDown = true;
-
 		return false;
 	}
 
@@ -210,6 +232,18 @@ public class GdxGame extends ApplicationAdapter implements InputProcessor {
 			moveUp = false;
 		if(keycode == Input.Keys.S)
 			moveDown = false;
+        if(keycode == Input.Keys.SPACE) {
+            for (RectangleMapObject rectangleObject : doorsObjectLayer.getObjects().getByType(RectangleMapObject.class)) {
+                Rectangle rectangle = rectangleObject.getRectangle();
+                if (Intersector.overlaps(rectangle, playerDoorOpenerRectangle)) {
+                    if(!Intersector.overlaps(rectangle, playerRectangle)) {
+                        rectangleObject.getProperties().put("closed", !((Boolean)rectangleObject.getProperties().get("closed")));
+                        tiledMap.getLayers().get(rectangleObject.getName()).setVisible(!tiledMap.getLayers().get(rectangleObject.getName()).isVisible());
+                    }
+                    break;
+                }
+            }
+        }
 		return false;
 	}
 
