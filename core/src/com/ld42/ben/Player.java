@@ -31,9 +31,12 @@ public class Player extends Character implements InputProcessor {
         doorOpenerRectangle.x = getCharacterRectangle().x + 4;
         doorOpenerRectangle.y = getCharacterRectangle().y - 6;
 
+        float posx = getCharacterRectangle().x;
+        float posy = getCharacterRectangle().y;
+
         moveCharacter();
-        camera.position.x = getCharacterRectangle().x;
-        camera.position.y = getCharacterRectangle().y;
+
+        camera.translate(getCharacterRectangle().x - posx, getCharacterRectangle().y - posy);
 
         batch.draw(getCurrentFrame(), getCharacterRectangle().x - getCharacterRectangle().width, getCharacterRectangle().y - getCharacterRectangle().height, 12, 12);
     }

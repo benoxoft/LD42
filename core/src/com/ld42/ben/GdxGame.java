@@ -20,6 +20,8 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
 
+import java.util.ArrayList;
+
 public class GdxGame extends ApplicationAdapter {
 
     private SpriteBatch batch;
@@ -30,7 +32,7 @@ public class GdxGame extends ApplicationAdapter {
 	private OrthogonalTiledMapRenderer tiledMapRenderer;
 
 	// Zombies
-    private Zombie zombie;
+    private ArrayList<Zombie> zombies = new ArrayList<Zombie>();
 
     private Player player;
 
@@ -49,8 +51,12 @@ public class GdxGame extends ApplicationAdapter {
         camera.update();
 
         player = new Player(tiledMap);
-        zombie = new Zombie(tiledMap);
+        camera.position.x = player.getCharacterRectangle().x;
+        camera.position.y = player.getCharacterRectangle().y;
 
+        Zombie zombie = new Zombie(tiledMap);
+        zombies.add(zombie);
+        zombie.setBrain(new ZombieBrain(zombie, tiledMap, player, zombies));
 		Gdx.input.setInputProcessor(player);
 
 		batch = new SpriteBatch();
@@ -71,7 +77,9 @@ public class GdxGame extends ApplicationAdapter {
 
         tiledMapRenderer.getBatch().begin();
         player.render(tiledMapRenderer.getBatch(), camera);
-        zombie.render(tiledMapRenderer.getBatch(), camera);
+        for(Zombie zombie : zombies) {
+            zombie.render(tiledMapRenderer.getBatch(), camera);
+        }
         tiledMapRenderer.renderTileLayer((TiledMapTileLayer)tiledMap.getLayers().get(tiledMap.getLayers().getIndex("OverWalls")));
         tiledMapRenderer.getBatch().end();
 

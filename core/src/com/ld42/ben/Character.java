@@ -129,7 +129,7 @@ public abstract class Character {
         this.moveRight = moveRight;
     }
 
-    protected Rectangle getCharacterRectangle() {
+    public Rectangle getCharacterRectangle() {
         return characterRectangle;
     }
 
