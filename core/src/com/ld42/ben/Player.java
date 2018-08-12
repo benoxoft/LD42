@@ -13,6 +13,7 @@ import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 
 public class Player implements InputProcessor {
 
@@ -99,53 +100,19 @@ public class Player implements InputProcessor {
         playerDoorOpenerRectangle.y = playerRectangle.y - 6;
 
         playerRectangle.x += moveX;
-        boolean collide = false;
-        for (RectangleMapObject rectangleObject : collisionObjectLayer.getObjects().getByType(RectangleMapObject.class)) {
-            Rectangle rectangle = rectangleObject.getRectangle();
-            if (Intersector.overlaps(rectangle, playerRectangle)) {
-                collide = true;
-                break;
-            }
-        }
-        for (RectangleMapObject rectangleObject : doorsObjectLayer.getObjects().getByType(RectangleMapObject.class)) {
-            Rectangle rectangle = rectangleObject.getRectangle();
-            if((Boolean) rectangleObject.getProperties().get("closed")) {
-                if (Intersector.overlaps(rectangle, playerRectangle)) {
-                    collide = true;
-                    break;
-                }
-            }
-        }
-
-        if(!collide) {
+        if(Collision.detectCollision(playerRectangle, collisionObjectLayer) == null &&
+                Collision.detectDoorCollision(playerRectangle, doorsObjectLayer) == null) {
             camera.translate(moveX, 0);
         }
         playerRectangle.x -= moveX;
 
 
         playerRectangle.y += moveY;
-        collide = false;
-        for (RectangleMapObject rectangleObject : collisionObjectLayer.getObjects().getByType(RectangleMapObject.class)) {
-            Rectangle rectangle = rectangleObject.getRectangle();
-            if (Intersector.overlaps(rectangle, playerRectangle)) {
-                collide = true;
-                break;
-            }
-        }
-        for (RectangleMapObject rectangleObject : doorsObjectLayer.getObjects().getByType(RectangleMapObject.class)) {
-            Rectangle rectangle = rectangleObject.getRectangle();
-            if((Boolean) rectangleObject.getProperties().get("closed")) {
-                if (Intersector.overlaps(rectangle, playerRectangle)) {
-                    collide = true;
-                    break;
-                }
-            }
-        }
-        playerRectangle.y -= moveY;
-        if(!collide) {
+        if(Collision.detectCollision(playerRectangle, collisionObjectLayer) == null &&
+                Collision.detectDoorCollision(playerRectangle, doorsObjectLayer) == null) {
             camera.translate(0, moveY);
         }
-
+        playerRectangle.y -= moveY;
     }
 
     private Animation<TextureRegion> createWalkAnimation(TextureRegion[][] treg, int colIndex) {
@@ -181,14 +148,11 @@ public class Player implements InputProcessor {
         if(keycode == Input.Keys.S)
             moveDown = false;
         if(keycode == Input.Keys.SPACE) {
-            for (RectangleMapObject rectangleObject : doorsObjectLayer.getObjects().getByType(RectangleMapObject.class)) {
-                Rectangle rectangle = rectangleObject.getRectangle();
-                if (Intersector.overlaps(rectangle, playerDoorOpenerRectangle)) {
-                    if(!Intersector.overlaps(rectangle, playerRectangle)) {
-                        rectangleObject.getProperties().put("closed", !((Boolean)rectangleObject.getProperties().get("closed")));
-                        tiledMap.getLayers().get(rectangleObject.getName()).setVisible(!tiledMap.getLayers().get(rectangleObject.getName()).isVisible());
-                    }
-                    break;
+            RectangleMapObject rectangleObject = Collision.detectCollision(playerDoorOpenerRectangle, doorsObjectLayer);
+            if(rectangleObject != null) {
+                if(Collision.detectCollision(playerRectangle, doorsObjectLayer) == null) {
+                    rectangleObject.getProperties().put("closed", !((Boolean)rectangleObject.getProperties().get("closed")));
+                    tiledMap.getLayers().get(rectangleObject.getName()).setVisible(!tiledMap.getLayers().get(rectangleObject.getName()).isVisible());
                 }
             }
         }
