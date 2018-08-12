@@ -30,16 +30,7 @@ public class GdxGame extends ApplicationAdapter {
 	private OrthogonalTiledMapRenderer tiledMapRenderer;
 
 	// Zombies
-    private Texture zombieWalkSheet;
-    private Animation<TextureRegion> zombieWalkAnimationLeft;
-    private Animation<TextureRegion> zombieWalkAnimationRight;
-    private Animation<TextureRegion> zombieWalkAnimationDown;
-    private Animation<TextureRegion> zombieWalkAnimationUp;
-
-    private float zombieMoveTime;
-    private TextureRegion zombieCurrentFrame;
-    private Rectangle zombieRectangle;
-    private Rectangle zombieDoorOpenerRectangle;
+    private Zombie zombie;
 
     private Player player;
 
@@ -52,16 +43,13 @@ public class GdxGame extends ApplicationAdapter {
 		tiledMap = new TmxMapLoader().load("50_50.tmx");
 		tiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap);
 
-		float startx = (Float) tiledMap.getLayers().get("StartingPoint").getObjects().get("starting_point").getProperties().get("x");
-        float starty = (Float) tiledMap.getLayers().get("StartingPoint").getObjects().get("starting_point").getProperties().get("y");
-
         camera = new OrthographicCamera();
         camera.setToOrtho(false, w, h);
-        camera.position.set(startx, starty, 0);
         camera.zoom = 0.25f;
         camera.update();
 
         player = new Player(tiledMap);
+        zombie = new Zombie(tiledMap);
 
 		Gdx.input.setInputProcessor(player);
 
@@ -78,10 +66,12 @@ public class GdxGame extends ApplicationAdapter {
 		tiledMapRenderer.render();
 
 		batch.begin();
-        player.render(batch, camera);
+
         batch.end();
 
         tiledMapRenderer.getBatch().begin();
+        player.render(tiledMapRenderer.getBatch(), camera);
+        zombie.render(tiledMapRenderer.getBatch(), camera);
         tiledMapRenderer.renderTileLayer((TiledMapTileLayer)tiledMap.getLayers().get(tiledMap.getLayers().getIndex("OverWalls")));
         tiledMapRenderer.getBatch().end();
 

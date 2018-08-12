@@ -13,7 +13,6 @@ import com.badlogic.gdx.math.Rectangle;
 public abstract class Character {
 
     private static final int FRAME_COLS = 4, FRAME_ROWS = 4;
-    private static final float FRAME_DURATION = 0.1f;
     private static final int WALK_RIGHT_COL_INDEX = 0;
     private static final int WALK_LEFT_COL_INDEX = 1;
     private static final int WALK_DOWN_COL_INDEX = 2;
@@ -63,6 +62,7 @@ public abstract class Character {
     public abstract void render(Batch batch, OrthographicCamera camera);
     protected abstract float getMoveX();
     protected abstract float getMoveY();
+    protected abstract float getAnimationSpeed();
 
     protected void moveCharacter() {
         moveTime += Gdx.graphics.getDeltaTime();
@@ -106,7 +106,7 @@ public abstract class Character {
         walkFrames[1] = treg[colIndex][1];
         walkFrames[2] = treg[colIndex][2];
         walkFrames[3] = treg[colIndex][3];
-        return new Animation<TextureRegion>(FRAME_DURATION, walkFrames);
+        return new Animation<TextureRegion>(getAnimationSpeed(), walkFrames);
     }
 
     protected TextureRegion getCurrentFrame() {

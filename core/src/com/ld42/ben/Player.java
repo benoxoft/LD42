@@ -35,7 +35,7 @@ public class Player extends Character implements InputProcessor {
         camera.position.x = getCharacterRectangle().x;
         camera.position.y = getCharacterRectangle().y;
 
-        batch.draw(getCurrentFrame(), camera.viewportWidth / 2f - 16, camera.viewportHeight / 2f, 48, 48);
+        batch.draw(getCurrentFrame(), getCharacterRectangle().x - getCharacterRectangle().width, getCharacterRectangle().y - getCharacterRectangle().height, 12, 12);
     }
 
     @Override
@@ -46,6 +46,11 @@ public class Player extends Character implements InputProcessor {
     @Override
     protected float getMoveY() {
         return 1;
+    }
+
+    @Override
+    protected float getAnimationSpeed() {
+        return 0.1f;
     }
 
     @Override
