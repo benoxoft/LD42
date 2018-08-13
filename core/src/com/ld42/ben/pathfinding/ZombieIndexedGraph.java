@@ -20,7 +20,7 @@ public class ZombieIndexedGraph implements IndexedGraph {
     private final TiledMap tiledMap;
     private final Player player;
 
-    public static final int NODE_COUNT = 50 * 50;
+    public static final int NODE_COUNT = 25 * 25;
 
     private static Node[][] initializeGraph(Zombie owner, int node_count) {
         Node[][] nodes;
@@ -32,8 +32,8 @@ public class ZombieIndexedGraph implements IndexedGraph {
 
         float posx = owner.getCharacterRectangle().x;
         float posy = owner.getCharacterRectangle().y;
-        float width = 8; //owner.getCharacterRectangle().width;
-        float height = 8; //owner.getCharacterRectangle().height;
+        float width = 12; //owner.getCharacterRectangle().width;
+        float height = 12; //owner.getCharacterRectangle().height;
 
         for(int i = shift; i < layers + shift; i++) {
             for(int j = shift; j < layers + shift; j++) {

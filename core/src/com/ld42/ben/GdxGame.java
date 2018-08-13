@@ -35,6 +35,7 @@ public class GdxGame extends ApplicationAdapter {
     private ArrayList<Zombie> zombies = new ArrayList<Zombie>();
 
     private Player player;
+    private int spawn = 60;
 
 	@Override
 	public void create () {
@@ -64,6 +65,16 @@ public class GdxGame extends ApplicationAdapter {
 
 	@Override
 	public void render () {
+	    spawn--;
+	    if(spawn == 0) {
+	        spawn = 60;
+	        if(zombies.size() < 50) {
+                Zombie zombie = new Zombie(tiledMap);
+                zombies.add(zombie);
+                zombie.setBrain(new ZombieBrain(zombie, tiledMap, player, zombies));
+            }
+        }
+
 		Gdx.gl.glClearColor(0.3f, 0, 0, 0);
 		Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
