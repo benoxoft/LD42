@@ -6,6 +6,7 @@ public class ZombieHeuristic implements Heuristic<Node> {
 
     @Override
     public float estimate(Node node, Node endNode) {
-        return 0;
+        float x = (float) Math.sqrt(Math.pow((endNode.getRectangle().x - node.getRectangle().x), 2) + Math.pow((endNode.getRectangle().y - node.getRectangle().y), 2));
+        return x;
     }
 }

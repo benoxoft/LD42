@@ -31,7 +31,7 @@ public class ZombieConnection implements Connection {
         int cost = 100;
 
         if(Collision.detectCollision(toNode.getRectangle(), tiledMap.getLayers().get("Walls")) != null) {
-            return 1000;
+            return 2000;
         }
         else if(Collision.detectCollision(toNode.getRectangle(), tiledMap.getLayers().get("doors")) != null) {
             cost -= 10;

@@ -4,12 +4,14 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.math.Vector2;
 
 public class Zombie extends Character {
 
     private ZombieBrain brain;
+    private Vector2 currentVector;
 
     public Zombie(TiledMap tiledMap) {
         super(tiledMap);
@@ -31,36 +33,37 @@ public class Zombie extends Character {
 
     @Override
     public void render(Batch batch, OrthographicCamera camera) {
-        Vector2 v = brain.think();
-        if(v.y < 0) {
+        currentVector = brain.think().nor();
+        setMoveLeft(false);
+        setMoveRight(false);
+        setMoveUp(false);
+        setMoveDown(false);
+
+        if(currentVector.y < 0) {
             setMoveDown(true);
-            setMoveUp(false);
-        } else if(v.y > 0) {
+        } else if(currentVector.y > 0) {
             setMoveUp(true);
-            setMoveDown(false);
         }
-        if(v.x < 0) {
+        if(currentVector.x < 0) {
             setMoveLeft(true);
-            setMoveRight(false);
-        } else if(v.x > 0) {
+        } else if(currentVector.x > 0) {
             setMoveRight(true);
-            setMoveLeft(false);
         }
 
         moveCharacter();
 
         batch.setProjectionMatrix(camera.combined);
-        batch.draw(getCurrentFrame(), getCharacterRectangle().x, getCharacterRectangle().y, 12, 12);
+        batch.draw(getCurrentFrame(), getCharacterRectangle().x - getCharacterRectangle().width, getCharacterRectangle().y - getCharacterRectangle().height, 12, 12);
     }
 
     @Override
     protected float getMoveX() {
-        return 0.3f;
+        return Math.abs(currentVector.x) * 0.6f;
     }
 
     @Override
     protected float getMoveY() {
-        return 0.3f;
+        return Math.abs(currentVector.y) * 0.6f;
     }
 
     @Override

@@ -69,21 +69,27 @@ public abstract class Character {
         float moveX = 0;
         float moveY = 0;
 
-        if(moveLeft) {
-            moveX = -getMoveX();
-            currentFrame = walkAnimationLeft.getKeyFrame(moveTime, true);
-        }
         if(moveRight) {
             moveX = getMoveX();
-            currentFrame = walkAnimationRight.getKeyFrame(moveTime, true);
         }
         if(moveUp) {
             moveY = getMoveY();
-            currentFrame = walkAnimationUp.getKeyFrame(moveTime, true);
+        }
+        if(moveLeft) {
+            moveX = -getMoveX();
         }
         if(moveDown) {
             moveY = -getMoveY();
+        }
+
+        if(moveDown && moveY <= moveX) {
             currentFrame = walkAnimationDown.getKeyFrame(moveTime, true);
+        } else if(moveUp && moveY >= moveX) {
+            currentFrame = walkAnimationUp.getKeyFrame(moveTime, true);
+        } else if(moveLeft && moveX <= moveY) {
+            currentFrame = walkAnimationLeft.getKeyFrame(moveTime, true);
+        } else if(moveRight && moveX >= moveY) {
+            currentFrame = walkAnimationRight.getKeyFrame(moveTime, true);
         }
 
         characterRectangle.x += moveX;

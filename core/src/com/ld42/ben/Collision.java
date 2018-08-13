@@ -10,7 +10,7 @@ public class Collision {
     public static RectangleMapObject detectCollision(Rectangle rect, MapLayer layer) {
         for (RectangleMapObject rectangleObject : layer.getObjects().getByType(RectangleMapObject.class)) {
             Rectangle rectangle = rectangleObject.getRectangle();
-            if (Intersector.overlaps(rectangle, rect)) {
+            if (Intersector.overlaps(rect, rectangle)) {
                 return rectangleObject;
             }
         }

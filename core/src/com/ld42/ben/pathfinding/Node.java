@@ -9,10 +9,10 @@ public class Node {
     private final Rectangle rectangle;
     private final Array<Connection> connections;
 
-    public Node(float x, float y) {
+    public Node(float x, float y, float width, float height) {
         connections = new Array<Connection>();
 
-        this.rectangle = new Rectangle(x, y, 8, 8);
+        this.rectangle = new Rectangle(x, y, width, height);
     }
 
     public Rectangle getRectangle() {
