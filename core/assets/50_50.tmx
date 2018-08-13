@@ -1088,7 +1088,7 @@
   </object>
   <object id="102" name="closedDoor9" x="340.562" y="236" width="14.6875" height="19.9736">
    <properties>
-    <property name="closed" type="bool" value="false"/>
+    <property name="closed" type="bool" value="true"/>
    </properties>
   </object>
   <object id="103" name="closedDoor4" x="340.455" y="123.818" width="14.8182" height="20.0949">
@@ -1115,7 +1115,7 @@
    <point/>
   </object>
  </objectgroup>
- <objectgroup name="pathfinding">
+ <objectgroup name="pathfinding" visible="0">
   <object id="148" x="115.333" y="33" width="83" height="24.6667"/>
   <object id="149" x="219.667" y="145" width="15.3333" height="21.6667"/>
   <object id="150" x="91.6667" y="145.333" width="16" height="57"/>
